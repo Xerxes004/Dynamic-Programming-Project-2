@@ -1,0 +1,2 @@
+# Dynamic-Programming-Project-2
+An example of dynamic programming by solving the "making change" problem. This repository is for a Junior-level CS class at Cedarville University. Any use of this code to circumvent actually solving this problem on your own for a class is CHEATING and you should be ashamed of yourself. If you can't solve this problem as a Junior CS major, you should probably switch majors.
