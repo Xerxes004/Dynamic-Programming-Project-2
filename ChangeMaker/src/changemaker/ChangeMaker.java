@@ -10,7 +10,6 @@
 
 package changemaker;
 
-import com.sun.media.sound.InvalidDataException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -19,9 +18,10 @@ public class ChangeMaker
 {
     private static int[] denominations;
     private static int[] problems;
+    private static int[] solution;
     
     /**
-     * Searches dictionary to determine if key is present 
+     * Constructor which takes an array of denominations.
      * @param denominations_ an array of integer denominations for our money
      * system
      * @throws ChangeMakerException
@@ -127,18 +127,24 @@ public class ChangeMaker
     private int makeChangeRecursively(int value)
         throws InvalidProblemException
     {
+        // assign the solution to the solution variable
+        // return the runtime
         return -1;
     }
     
     private int makeChangeDynamically(int value)
         throws InvalidProblemException
     {
+        // assign the solution to the solution variable
+        // return the runtime
         return -1;
     }
     
     private int makeChangeWithMemoization(int value)
         throws InvalidProblemException
     {
+        // assign the solution to the solution variable
+        // return the runtime
         return -1;
     }
     
