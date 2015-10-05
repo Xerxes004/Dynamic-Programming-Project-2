@@ -81,8 +81,7 @@ public class ChangeMaker
             if (inputFile.hasNextInt())
             {
                 denominations[i] = inputFile.nextInt();
-                System.out.
-                        println("Denomination "+ (i + 1) + ": " + denominations[i]);
+                System.out.println("Denomination "+ (i + 1) + ": " + denominations[i]);
             }
             else
             {
@@ -125,11 +124,30 @@ public class ChangeMaker
         }
     }
     
+    private int makeChangeRecursively(int value)
+        throws InvalidProblemException
+    {
+        return -1;
+    }
+    
+    private int makeChangeDynamically(int value)
+        throws InvalidProblemException
+    {
+        return -1;
+    }
+    
+    private int makeChangeWithMemoization(int value)
+        throws InvalidProblemException
+    {
+        return -1;
+    }
+    
     public static void main(String[] args)
     {
         try
         {
             File file = new File("make_change_input.txt");
+            
             parseInputFile(file);
             
             ChangeMaker chg = new ChangeMaker(denominations);
