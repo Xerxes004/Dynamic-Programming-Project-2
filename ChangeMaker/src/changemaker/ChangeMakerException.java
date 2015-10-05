@@ -9,9 +9,9 @@ package changemaker;
  *
  * @author wes
  */
-public class InvalidDenominationException extends Exception
+public class ChangeMakerException extends Exception
 {
-    public InvalidDenominationException(String msg) {
+    public ChangeMakerException(String msg) {
         super(msg);
     }
 }
