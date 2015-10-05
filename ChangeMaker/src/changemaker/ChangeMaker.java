@@ -1,22 +1,29 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Title      : Project 2, CS3410
+ * Description: A dynamic-programming and naive solution to the "making change"
+ *              problem. 
+ * Copyright  : Copyright (c) 2015, Wesley Kelly, James Von Eiff, 
+ *                                  Cedarville University
+ * @author    : Wesley Kelly, James Von Eiff
+ * @version 1.0
  */
+
 package changemaker;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-/**
- *
- * @author wes
- */
 public class ChangeMaker
 {
     private int[] denominations;
     
+    /**
+     * Searches dictionary to determine if key is present 
+     * @param denominations_ an array of integer denominations for our money
+     * system
+     * @throws InvalidDenominationException
+     */
     public ChangeMaker(int denominations_[])
         throws InvalidDenominationException
     {
@@ -30,10 +37,17 @@ public class ChangeMaker
         denominations = denominations_;
     }
     
-    private static int[] getDenominationsFromFile(Scanner inputFile)
+    /**
+     * Parses an input file for
+     * @param inputFile file that contains denomination information
+     * @return the array of denominations
+     * @throws InvalidDenominationException 
+     */
+    private static int[] parseInputFile(Scanner inputFile)
         throws InvalidDenominationException
     {
         int numOfDenominations = 0;
+        // first integer is the number of denominations
         if (inputFile.hasNextInt())
         {
             numOfDenominations = inputFile.nextInt();
@@ -44,8 +58,10 @@ public class ChangeMaker
             throw new InvalidDenominationException(err);
         }
         
+        // make an array large enough to hold all of the denominations
         int[] denominations = new int[numOfDenominations];  
         
+        // get each denomination
         for (int i = 0; i < numOfDenominations; i++)
         {
             if (inputFile.hasNextInt())
@@ -61,7 +77,7 @@ public class ChangeMaker
             
         //TODO: get more numbers
         
-        return null;
+        return denominations;
     }
     
     public static void main(String[] args)
@@ -70,7 +86,7 @@ public class ChangeMaker
         {
             Scanner fileScanner = new Scanner(new File("make_change_input.txt"));
             
-            int[] denominations = getDenominationsFromFile(fileScanner);
+            int[] denominations = parseInputFile(fileScanner);
 
             ChangeMaker chg = new ChangeMaker(denominations);
         }
