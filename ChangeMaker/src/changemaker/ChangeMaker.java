@@ -24,6 +24,7 @@ public class ChangeMaker
     private long runtime;
 
     private int[] lastCoinTaken;
+    private int[] coinCount;
 
     /**
      * Constructor which takes an array of denominations.
@@ -56,6 +57,8 @@ public class ChangeMaker
             lastCoinTaken = new int[1];
             // seed the last coin taken array
             lastCoinTaken[0] = 1;
+            
+            coinCount = new int[1];
         }
     }
 
@@ -88,7 +91,6 @@ public class ChangeMaker
 
         // make an array large enough to hold all of the denominations
         denominations = new int[numOfDenominations];
-        //System.out.println("Denominations found: " + denominations.length);
 
         // get each denomination
         for (int i = 0; i < denominations.length; i++)
@@ -96,7 +98,6 @@ public class ChangeMaker
             if (inputFile.hasNextInt())
             {
                 denominations[i] = inputFile.nextInt();
-                //System.out.println("Denomination " + (i + 1) + ": " + denominations[i]);
             }
             else
             {
@@ -121,7 +122,6 @@ public class ChangeMaker
 
         // make an array large enough to hold all of the denominations
         problems = new int[numOfProblems];
-        //System.out.println("Problems found: " + problems.length);
 
         // get each denomination
         for (int i = 0; i < problems.length; i++)
@@ -129,7 +129,6 @@ public class ChangeMaker
             if (inputFile.hasNextInt())
             {
                 problems[i] = inputFile.nextInt();
-                //System.out.println("Problem " + (i + 1) + ": " + problems[i]);
             }
             else
             {
@@ -137,6 +136,8 @@ public class ChangeMaker
                 throw new InvalidInputFileException(err);
             }
         }
+        
+        inputFile.close();
     }
 
     /**
@@ -177,63 +178,30 @@ public class ChangeMaker
             int[] tally = new int[denominations.length];
             
             
-            // THIS ALGORITHM DOES NOT WORK YET
+            
             for (int i = 0; i < value; i++)
             {
-                int k = i + 1;
-                
-                while (k > 0)
-                {
-                    // find the max denomination under k
-                    int max = findMaxDenomination(k);
-                    k -= max;
-                    
-                    int lastCoin = max;
-                    
-                    System.out.println(max + " >= " + k);
-                    
-                    for (int j = 0; j < denominations.length; j++)
-                    {
-                        if (lastCoin == denominations[j])
-                        {
-                            tally[j]++;
-                            newLastCoinArray[i] = lastCoin;
-                            break;
-                        }
-                    }
-                    
-                    
-                    
-                    newLastCoinArray[i] = lastCoin;
-                    
-                    System.out.println("new index " + k);
-                    
-                    // find the previous coin by indexing to the sub-problem
-                    // solution
-                    
-                    
-                }
+                int nextSmallestCurrency = findMaxDenominationIndex(i);
             }
             
             runtime =  System.nanoTime() - startTime;
             
-            lastCoinTaken = newLastCoinArray;
+            //lastCoinTaken = newLastCoinArray;
             
             return tally;
         }
     }
     
-    private int findMaxDenomination(int value)
+    private int findMaxDenominationIndex(int value)
     {
-        for (int i = 1; i < denominations.length; i++)
+        for (int i = 0; i < denominations.length; i++)
         {
             if (denominations[i] > value)
             {
-                // this can never index out of bounds because we start at 1
-                return denominations[i - 1];
+                return (i - 1);
             }
         }
-        return denominations[denominations.length - 1];
+        return denominations.length - 1;
     }
 
     private int makeChangeRecursively(int value)
@@ -269,14 +237,16 @@ public class ChangeMaker
         return runtime;
     }
     
-    public void printInfo(int[] tally)
+    private int sumCoins(int[] tally)
     {
-        System.out.println("Runtime: " + this.runtime + "ns");
-        for (int i = 0; i < denominations.length; i++)
+        int sum = 0;
+        
+        for (int i : tally)
         {
-            System.out.print(denominations[i] + ":" + tally[i]);
-            System.out.print( (i == denominations.length - 1) ? (" = " + sumTally(tally) + "\n") : " + ");
+            sum += i;
         }
+        
+        return sum;
     }
     
     private int sumTally(int[] tally)
@@ -294,6 +264,17 @@ public class ChangeMaker
         return sum;
     }
 
+    
+    public void printInfo(int[] tally)
+    {
+        System.out.println("Runtime: " + this.runtime + "ns");
+        for (int i = 0; i < denominations.length; i++)
+        {
+            System.out.print(denominations[i] + ":" + tally[i]);
+            System.out.print( (i == denominations.length - 1) ? (" = " + sumTally(tally) + "\n") : " + ");
+        }
+    }
+    
     public static void main(String[] args)
     {
         try
