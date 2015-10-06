@@ -170,19 +170,47 @@ public class ChangeMaker
         // we need in order to find it
         else
         {
-            int newLastCoinArray[] = new int[value];
-            System.arraycopy(lastCoinTaken, 0, newLastCoinArray, 0, lastCoinTaken.length);
+            int newCoinCount[] = new int[value + 1];
+            System.arraycopy(coinCount, 0, newCoinCount, 0, coinCount.length);
             
             long startTime = System.nanoTime();
             
             int[] tally = new int[denominations.length];
             
-            
-            
-            for (int i = 0; i < value; i++)
+            for (int i = 0; i <= value; i++)
             {
-                int nextSmallestCurrency = findMaxDenominationIndex(i);
+                // if we are only working with our 1-value currency, we need
+                // exactly as many coins as our current index
+                if (i < denominations[1])
+                {
+                    newCoinCount[i] = i;
+                }
+                else
+                {
+                    int maxDenomIndex = findMaxDenominationIndex(i);
+                    
+                    int coinTally[] = new int[maxDenomIndex + 1];
+                    
+                    System.arraycopy(coinCount, 0, coinTally, 0, coinCount.length);
+            
+                    for (int k = 0; k < maxDenomIndex; k++)
+                    {
+                        int j = i - denominations[k];
+                        System.out.println(j+":"+newCoinCount[j]);
+                        coinTally[k] = newCoinCount[j];
+                    }
+                    
+                    newCoinCount[i] = newCoinCount[min(coinTally)] + 1;
+                    
+                    //System.out.println("Min of tally is: " + min(coinTally) + " with value " + newCoinCount[i]);
+                }
             }
+            
+            for (int b : newCoinCount)
+            {
+                System.out.print(b + ", ");
+            }
+            System.out.println("");
             
             runtime =  System.nanoTime() - startTime;
             
@@ -214,13 +242,16 @@ public class ChangeMaker
         return -1;
     }
     
-    private int min(int[] values) {
+    private int min(int[] values) 
+    {
         int least = 0;
+        
         for(int i = 1; i < values.length; i++) {
             if(values[least] > values[i]) {
                 least = i;
             }
         }
+        
         return least;
     }
 
@@ -285,7 +316,9 @@ public class ChangeMaker
 
             ChangeMaker chg = new ChangeMaker(denominations);
             
-            chg.printInfo(chg.makeChangeDynamically(7));
+            //chg.printInfo(
+                    chg.makeChangeDynamically(14);
+            //);
             //chg.printInfo(chg.makeChangeDynamically(8));
             //chg.printInfo(chg.makeChangeDynamically(22));
         }
