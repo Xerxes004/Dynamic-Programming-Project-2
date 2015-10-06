@@ -225,14 +225,16 @@ public class ChangeMaker
         return runtime;
     }
     
-    public void printInfo(int[] tally)
+    private int sumCoins(int[] tally)
     {
-        System.out.println("Runtime: " + this.runtime + "ns");
-        for (int i = 0; i < denominations.length; i++)
+        int sum = 0;
+        
+        for (int i : tally)
         {
-            System.out.print(denominations[i] + ":" + tally[i]);
-            System.out.print( (i == denominations.length - 1) ? (" = " + sumTally(tally) + "\n") : " + ");
+            sum += i;
         }
+        
+        return sum;
     }
     
     private int sumTally(int[] tally)
@@ -250,6 +252,17 @@ public class ChangeMaker
         return sum;
     }
 
+    
+    public void printInfo(int[] tally)
+    {
+        System.out.println("Runtime: " + this.runtime + "ns");
+        for (int i = 0; i < denominations.length; i++)
+        {
+            System.out.print(denominations[i] + ":" + tally[i]);
+            System.out.print( (i == denominations.length - 1) ? (" = " + sumTally(tally) + "\n") : " + ");
+        }
+    }
+    
     public static void main(String[] args)
     {
         try
