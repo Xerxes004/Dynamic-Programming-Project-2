@@ -232,14 +232,22 @@ public class ChangeMaker
         return denominations.length - 1;
     }
 
-    private int makeChangeRecursively(int value)
+    private int[] makeChangeRecursively(int value)
         throws InvalidProblemException
     {
         // assign the solution to the solution variable
         // return the runtime
         long startTime = System.nanoTime();
-
-        return -1;
+        int[] numDenom = new int[denominations.length];
+        for(int i = 0; i < denominations.length; i++) {
+            if(denominations[i] < value) {
+                numDenom[i]++;
+                
+            }
+        }
+        long endTime = System.nanoTime();
+        runtime = startTime - endTime;
+        return numDenom;
     }
     
     private int min(int[] values) 
