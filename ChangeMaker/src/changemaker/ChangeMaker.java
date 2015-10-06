@@ -241,7 +241,19 @@ public class ChangeMaker
     {
         // assign the solution to the solution variable
         // return the runtime
+        long startTime = System.nanoTime();
+
         return -1;
+    }
+    
+    private int min(int[] values) {
+        int least = 0;
+        for(int i = 1; i < values.length; i++) {
+            if(values[least] > values[i]) {
+                least = i;
+            }
+        }
+        return least;
     }
 
     private int makeChangeWithMemoization(int value)
