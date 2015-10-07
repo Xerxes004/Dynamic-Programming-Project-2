@@ -1,3 +1,4 @@
+
 /**
  * Title : Project 2, CS3410 Description: A dynamic-programming and naive
  * solution to the "making change" problem.
@@ -57,7 +58,7 @@ public class ChangeMaker
             lastCoinTaken = new int[1];
             // seed the last coin taken array
             lastCoinTaken[0] = 1;
-            
+
             coinCount = new int[1];
         }
     }
@@ -136,15 +137,16 @@ public class ChangeMaker
                 throw new InvalidInputFileException(err);
             }
         }
-        
+
         inputFile.close();
     }
 
     /**
      * Makes change using an internally stored dynamic array.
+     *
      * @param value monetary value we are making change for
      * @return tally of which denominations were used (mirrors order of the
-     *         denominations array).
+     * denominations array).
      * @throws InvalidProblemException throws when value is less than 1
      */
     private int[] makeChangeDynamically(int value)
@@ -154,72 +156,88 @@ public class ChangeMaker
         {
             throw new InvalidProblemException("Invalid money value: " + value);
         }
-        
+
         // if we already have stored that value
         if (value < lastCoinTaken.length)
         {
             long startTime = System.nanoTime();
-            
+
+            // TODO assign the tally based on already-computed data
             int tally[] = new int[0];
-            
+
             runtime = startTime - System.nanoTime();
-            
+
             return tally;
         }
         // if we haven't already found that value, find all of the new values
         // we need in order to find it
         else
         {
+            // we are extending our coinCount array
             int newCoinCount[] = new int[value + 1];
             System.arraycopy(coinCount, 0, newCoinCount, 0, coinCount.length);
             
-            long startTime = System.nanoTime();
+            coinCount = newCoinCount;
             
+            // extend lastCoinTaken array
+            int newLastCoinTaken[] = new int[newCoinCount.length];
+            System.arraycopy(lastCoinTaken, 0, newLastCoinTaken, 0, lastCoinTaken.length);
+            
+            lastCoinTaken = newLastCoinTaken;
+            
+
             int[] tally = new int[denominations.length];
+
+            long startTime = System.nanoTime();
             
             for (int i = 0; i <= value; i++)
             {
-                // if we are only working with our 1-value currency, we need
-                // exactly as many coins as our current index
+                // if we are only working with our 1-value "penny" currency, we 
+                // need exactly as many coins as our current index
                 if (i < denominations[1])
                 {
-                    newCoinCount[i] = i;
+                    coinCount[i] = i;
+                    
+                    lastCoinTaken[i] = (i != 0 ? 1 : 0);
                 }
                 else
                 {
+                    // finds the index of the largest denomination under i.
+                    //
+                    // this index is used to select currencies from the 
+                    //  denomination array
                     int maxDenomIndex = findMaxDenominationIndex(i);
-                    
-                    int coinTally[] = new int[maxDenomIndex + 1];
-                    
-                    System.arraycopy(coinCount, 0, coinTally, 0, coinCount.length);
-            
-                    for (int k = 0; k < maxDenomIndex; k++)
+
+                    // one smaller because we skip the first currency
+                    int coinTally[] = new int[maxDenomIndex];
+
+                    // for each currency value, subtract that currency then
+                    // store the result in an array. These will be used to 
+                    // index back into the newCoinCount array so that the values
+                    // there can be compared.
+                    for (int k = 1; k <= maxDenomIndex; k++)
                     {
+                        // skips the 1-value currency
                         int j = i - denominations[k];
-                        System.out.println(j+":"+newCoinCount[j]);
-                        coinTally[k] = newCoinCount[j];
+                        coinTally[k - 1] = coinCount[j];
                     }
-                    
-                    newCoinCount[i] = newCoinCount[min(coinTally)] + 1;
-                    
-                    //System.out.println("Min of tally is: " + min(coinTally) + " with value " + newCoinCount[i]);
+
+                    coinCount[i] = coinCount[minValue(coinTally)] + 1;
                 }
             }
             
-            for (int b : newCoinCount)
+            System.out.println("Coins: ");
+            for (int c : coinCount)
             {
-                System.out.print(b + ", ");
+                System.out.print(c + ", ");
             }
             System.out.println("");
-            
-            runtime =  System.nanoTime() - startTime;
-            
-            //lastCoinTaken = newLastCoinArray;
+            runtime = System.nanoTime() - startTime;
             
             return tally;
         }
     }
-    
+
     private int findMaxDenominationIndex(int value)
     {
         for (int i = 0; i < denominations.length; i++)
@@ -239,28 +257,37 @@ public class ChangeMaker
         // return the runtime
         long startTime = System.nanoTime();
         int[] numDenom = new int[denominations.length];
-        for(int i = 0; i < denominations.length; i++) {
-            if(denominations[i] < value) {
+        for (int i = 0; i < denominations.length; i++)
+        {
+            if (denominations[i] < value)
+            {
                 numDenom[i]++;
-                
+
             }
         }
         long endTime = System.nanoTime();
         runtime = startTime - endTime;
         return numDenom;
     }
-    
-    private int min(int[] values) 
+
+    private int min(int[] values)
     {
         int least = 0;
-        
-        for(int i = 1; i < values.length; i++) {
-            if(values[least] > values[i]) {
+
+        for (int i = 1; i < values.length; i++)
+        {
+            if (values[least] > values[i])
+            {
                 least = i;
             }
         }
-        
+
         return least;
+    }
+    
+    private int minValue(int[] values)
+    {
+        return values[min(values)];
     }
 
     private int makeChangeWithMemoization(int value)
@@ -270,28 +297,28 @@ public class ChangeMaker
         // return the runtime
         return -1;
     }
-    
+
     public long getRuntime()
     {
         return runtime;
     }
-    
+
     private int sumCoins(int[] tally)
     {
         int sum = 0;
-        
+
         for (int i : tally)
         {
             sum += i;
         }
-        
+
         return sum;
     }
-    
+
     private int sumTally(int[] tally)
     {
         int sum = 0;
-        
+
         for (int i = 0; i < tally.length; i++)
         {
             for (int j = 0; j < tally[i]; j++)
@@ -299,21 +326,20 @@ public class ChangeMaker
                 sum += denominations[i];
             }
         }
-        
+
         return sum;
     }
 
-    
     public void printInfo(int[] tally)
     {
         System.out.println("Runtime: " + this.runtime + "ns");
         for (int i = 0; i < denominations.length; i++)
         {
             System.out.print(denominations[i] + ":" + tally[i]);
-            System.out.print( (i == denominations.length - 1) ? (" = " + sumTally(tally) + "\n") : " + ");
+            System.out.print((i == denominations.length - 1) ? (" = " + sumTally(tally) + "\n") : " + ");
         }
     }
-    
+
     public static void main(String[] args)
     {
         try
@@ -323,9 +349,9 @@ public class ChangeMaker
             parseInputFile(file);
 
             ChangeMaker chg = new ChangeMaker(denominations);
-            
+
             //chg.printInfo(
-                    chg.makeChangeDynamically(14);
+            chg.makeChangeDynamically(22);
             //);
             //chg.printInfo(chg.makeChangeDynamically(8));
             //chg.printInfo(chg.makeChangeDynamically(22));
