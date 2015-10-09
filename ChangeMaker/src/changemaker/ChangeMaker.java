@@ -477,7 +477,7 @@ public class ChangeMaker
 
             ChangeMaker chg = new ChangeMaker(denominations);
             
-            int value = 252;
+            int value = 251;
             
             //for (int value = 1; value <= max; value++)
             {
