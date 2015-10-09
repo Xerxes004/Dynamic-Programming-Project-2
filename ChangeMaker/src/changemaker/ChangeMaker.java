@@ -13,6 +13,7 @@ package changemaker;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -629,9 +630,11 @@ public class ChangeMaker
     {
         try
         {
-            File file = new File("make_change_input.txt");
+            File inputFile = new File("make_change_input.txt");
+            PrintWriter outputFile = new PrintWriter(new File("output.csv"));
+            outputFile.println("type,problem,time");
 
-            parseInputFile(file);
+            parseInputFile(inputFile);
 
             ChangeMaker chg = new ChangeMaker(denominations);
             
@@ -640,12 +643,14 @@ public class ChangeMaker
                 System.out.println("**************\nSolving " + problem);
                 System.out.println("\tDynamic:");
                 chg.printInfo(chg.makeChangeDynamically(problem, 10000), chg);
+                outputFile.println("d," + problem + "," + (chg.getRuntime()));
                 
-                // around 80, problems take massive amounts of time
+                // Problems start to take massive amounts of time around 80
                 if (problem < 80)
                 {
                     System.out.println("\tRecursive:");
                     chg.printInfo(chg.makeChangeRecursively(problem, 100), chg);
+                    outputFile.println("r," + problem + "," + (chg.getRuntime()));
                 }
                 
                 // for some reason memoization breaks at 252... no idea why.
@@ -653,8 +658,11 @@ public class ChangeMaker
                 {
                     System.out.println("\tRecursive w/memo:");
                     chg.printInfo(chg.makeChangeWithMemoization(problem, 1000), chg);
+                    outputFile.println("m," + problem + "," + (chg.getRuntime()));
                 }
             }
+            
+            outputFile.close();
             
         }
         catch (InvalidInputFileException |
