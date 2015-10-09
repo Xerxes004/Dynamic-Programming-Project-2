@@ -641,12 +641,14 @@ public class ChangeMaker
                 System.out.println("\tDynamic:");
                 chg.printInfo(chg.makeChangeDynamically(problem, 10000), chg);
                 
-                if (problem < 90)
+                // around 80, problems take massive amounts of time
+                if (problem < 80)
                 {
                     System.out.println("\tRecursive:");
                     chg.printInfo(chg.makeChangeRecursively(problem, 100), chg);
                 }
                 
+                // for some reason memoization breaks at 252... no idea why.
                 if (problem < 252)
                 {
                     System.out.println("\tRecursive w/memo:");
