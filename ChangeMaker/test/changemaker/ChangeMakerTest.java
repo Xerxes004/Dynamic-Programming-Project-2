@@ -30,14 +30,22 @@ public class ChangeMakerTest {
             int[] dynamicSolve = null;
             int[] memoizedSolve = null;
             int[] recursiveSolve = null;
-            for(int i = 1; i < 51; i ++) {
+            for(int i = 1; i < 52*4; i ++) {
                 
                 dynamicSolve = testing.makeChangeDynamically(i);
                 memoizedSolve = testing.makeChangeWithMemoization(i);
-                recursiveSolve = testing.makeChangeRecursively(i);
+                if (i < 50)
+                {
+                    recursiveSolve = testing.makeChangeRecursively(i);
+                }
+                
                 assertArrayEquals(dynamicSolve, memoizedSolve);
-                assertArrayEquals(dynamicSolve, recursiveSolve);
-                assertArrayEquals(recursiveSolve, memoizedSolve);
+                
+                if (i < 50)
+                {
+                    assertArrayEquals(dynamicSolve, recursiveSolve);
+                    assertArrayEquals(recursiveSolve, memoizedSolve);
+                }
             }
             
         } catch(ChangeMakerException e) {
