@@ -101,7 +101,7 @@ public class ChangeMaker
             }
             else
             {
-                String err = "No denomination info found in file, check file.";
+                String err = "Not enough denomination info found in input file!";
                 throw new InvalidInputFileException(err);
             }
         }
@@ -109,7 +109,7 @@ public class ChangeMaker
         // fill problems array
         int numOfProblems = 0;
 
-        // first integer is the number of denominations
+        // next integer is the number of problems
         if (inputFile.hasNextInt())
         {
             numOfProblems = inputFile.nextInt();
@@ -120,10 +120,10 @@ public class ChangeMaker
             throw new InvalidInputFileException(err);
         }
 
-        // make an array large enough to hold all of the denominations
+        // make an array large enough to hold all of the problems
         problems = new int[numOfProblems];
 
-        // get each denomination
+        // get each problem and store it
         for (int i = 0; i < problems.length; i++)
         {
             if (inputFile.hasNextInt())
@@ -132,12 +132,30 @@ public class ChangeMaker
             }
             else
             {
-                String err = "No problem info found in file, check file.";
+                String err = "Not enough problem info found in input file!";
                 throw new InvalidInputFileException(err);
             }
         }
 
         inputFile.close();
+    }
+    
+    public int[] makeChangeDynamically(int value, int iterations)
+        throws InvalidProblemException, DenominationNotFoundException
+    {
+        int avgRuntime = 0;
+        int answer[] = new int[0];
+        runtime = 0;
+        
+        for (int i = 0; i < iterations; i++)
+        {
+            answer = makeChangeDynamically(value);
+            avgRuntime += runtime;
+        }
+        
+        runtime = avgRuntime / iterations;
+        
+        return answer;
     }
 
     /**
@@ -158,9 +176,12 @@ public class ChangeMaker
         }
         else
         {
+            // used to store the optimal # of coins
             int dynamicCoinCount[] = new int[value + 1];
+            // used to store the last coin taken for each solution
             int lastCoinTaken[] = new int[dynamicCoinCount.length];
 
+            // start timer
             long startTime = System.nanoTime();
 
             for (int i = 0; i <= value; i++)
@@ -196,7 +217,7 @@ public class ChangeMaker
                     // sub-problem solution
                     dynamicCoinCount[i] = dynamicCoinCount[minValue(possibleSolutions)] + 1;
 
-                    lastCoinTaken[i] = denominations[min(possibleSolutions)];
+                    lastCoinTaken[i] = denominations[minIndex(possibleSolutions)];
                 }
             }
 
@@ -288,27 +309,108 @@ public class ChangeMaker
         return denominations.length - 1;
     }
 
-    private int[] makeChangeRecursively(int value)
-        throws InvalidProblemException
+    /**
+     * This overloaded function allows the user to run this problem a specified
+     * number of times so that an average runtime can be taken for more
+     * reliable data.
+     * 
+     * @param value value for which to make change
+     * @param iterations number of times to run this problem
+     * @return optimal solution
+     * @throws changemaker.DenominationNotFoundException
+     */
+    public int[] makeChangeRecursively(int value, int iterations)
+        throws DenominationNotFoundException
     {
-        // assign the solution to the solution variable
-        // return the runtime
-        long startTime = System.nanoTime();
-        int[] numDenom = new int[denominations.length];
-        for (int i = 0; i < denominations.length; i++)
+        int avgRuntime = 0;
+        int tally[] = new int[0];
+        runtime = 0;
+        
+        for (int i = 0; i < iterations; i++)
         {
-            if (denominations[i] < value)
-            {
-                numDenom[i]++;
-
-            }
+            tally = makeChangeRecursively(value);
+            avgRuntime += runtime;
         }
-        long endTime = System.nanoTime();
-        runtime = startTime - endTime;
-        return numDenom;
+        
+        runtime = avgRuntime / iterations;
+        
+        return tally;
+    }
+    
+    /**
+     * This overloaded function abstracts the recursion so that the user doesn't
+     * have to worry about constructing and passing their own coinCount array,
+     * and also manages runtime much more easily.
+     * 
+     * @param value
+     * @return 
+     * @throws changemaker.DenominationNotFoundException 
+     */
+    public int[] makeChangeRecursively(int value)
+        throws DenominationNotFoundException
+    {
+        coinCount = new int[value + 1];
+        lastCoin = new int[value + 1];
+        
+        long startTime = System.nanoTime();
+        
+        recurse(value);
+        
+        runtime = System.nanoTime() - startTime;
+                
+        return makeTally(lastCoin, value);
+    }
+    
+    private int recurse(int value)
+    {
+        // If we are only working with our 1-value "penny" currency, we 
+        // need exactly as many coins as our current index.
+        if (value < denominations[1])
+        {
+            // if index is zero, the last coin is zero, otherwise it's 1
+            for (int i = 0; i <= value; i++)
+            {
+                lastCoin[i] = (i != 0 ? 1 : 0);
+            }
+            return value;
+        }
+        else
+        {
+            // Finds the index of the largest denomination under i.
+            // This index is used to select currencies from the 
+            // denomination array.
+            int maxDenomIndex = findMaxDenominationIndex(value);
+
+            // stores the possible solutions to each sub-problem, on each of
+            // which we will recurse
+            int possibleSolutions[] = new int[maxDenomIndex + 1];
+
+            // For each currency value, subtract that currency then
+            // store the result in an array. These will be used to 
+            // index back into the newCoinCount array so that the values
+            // there can be compared.
+            for (int k = 0; k <= maxDenomIndex; k++)
+            {
+                int j = value - denominations[k];
+                possibleSolutions[k] = recurse(j);
+            }
+            
+            // the sub-problem with the least coins
+            int min = minValue(possibleSolutions) + 1;
+            
+            lastCoin[value] = denominations[minIndex(possibleSolutions)];
+            
+            return min;
+        }
     }
 
-    private int min(int[] values)
+    /**
+     * Returns the index to the smallest element in an array.
+     * 
+     * @param values
+     * @return 
+     */
+    private int minIndex(int[] values)
     {
         int least = 0;
 
@@ -323,29 +425,72 @@ public class ChangeMaker
         return least;
     }
 
+    /**
+     * Finds the minimum value contained in an array.
+     * 
+     * @param values array to search for smallest value
+     * @return the smallest value
+     */
     private int minValue(int[] values)
     {
-        return values[min(values)];
+        return values[minIndex(values)];
     }
 
-    public int makeChangeWithMemoization(int value)
+    /**
+     * This overloaded function allows the user to run this problem a specified
+     * number of times so that an average runtime can be taken for more
+     * reliable data.
+     * 
+     * @param value value for which to make change
+     * @param iterations number of times to run this problem
+     * @return optimal solution
+     * @throws changemaker.DenominationNotFoundException
+     */
+    public int[] makeChangeWithMemoization(int value, int iterations)
+        throws DenominationNotFoundException
     {
-        coinCount = new int[value + 1];
-        int answer = makeChangeWithMemoization(value, coinCount);
+        int avgRuntime = 0;
+        int tally[] = new int[0];
+        runtime = 0;
         
-        int i = 0;
-        System.out.println("\n\n------------------------");
-        for (int count : coinCount)
+        for (int i = 0; i < iterations; i++)
         {
-            System.out.print(count + (++i % 10 == 0 && i != 0 ? "\n" : ","));
+            tally = makeChangeWithMemoization(value);
+            avgRuntime += runtime;
         }
         
-        return answer;
+        runtime = avgRuntime / iterations;
+        
+        return tally;
+    }
+    
+    /**
+     * This overloaded function abstracts the recursion so that the user doesn't
+     * have to worry about constructing and passing their own coinCount array,
+     * and also manages runtime much more easily.
+     * 
+     * @param value
+     * @return 
+     * @throws changemaker.DenominationNotFoundException 
+     */
+    public int[] makeChangeWithMemoization(int value)
+        throws DenominationNotFoundException
+    {
+        coinCount = new int[value + 1];
+        lastCoin = new int[value + 1];
+        
+        long startTime = System.nanoTime();
+        
+        makeChangeWithMemoization(value, coinCount);
+        
+        runtime = System.nanoTime() - startTime;
+                
+        return makeTally(lastCoin, value);
     }
     
     private int makeChangeWithMemoization(int value, int[] coinCount)
     {
-        if (coinCount[value] != 0)
+        if (this.coinCount[value] != 0)
         {
            return coinCount[value];
         }
@@ -355,6 +500,12 @@ public class ChangeMaker
         if (value < denominations[1])
         {
             coinCount[value] = value;
+            
+            // if index is zero, the last coin is zero, otherwise it's 1
+            for (int i = 0; i <= value; i++)
+            {
+                lastCoin[i] = (i != 0 ? 1 : 0);
+            }
             return value;
         }
         else
@@ -364,6 +515,8 @@ public class ChangeMaker
             // denomination array.
             int maxDenomIndex = findMaxDenominationIndex(value);
 
+            // stores the possible solutions to each sub-problem, on each of
+            // which we will recurse
             int possibleSolutions[] = new int[maxDenomIndex + 1];
 
             // For each currency value, subtract that currency then
@@ -376,10 +529,13 @@ public class ChangeMaker
                 possibleSolutions[k] = makeChangeWithMemoization(j, coinCount);
             }
             
+            // the sub-problem with the least coins
             int min = minValue(possibleSolutions) + 1;
             
             coinCount[value] = min;
-
+            
+            lastCoin[value] = denominations[minIndex(possibleSolutions)];
+            
             return min;
         }
     }
@@ -456,13 +612,15 @@ public class ChangeMaker
      */
     public int printInfo(int[] tally, ChangeMaker cm)
     {
-        System.out.println("Runtime: " + cm.getRuntime() + "ns");
-        System.out.println("Answer: " + sumCoins(tally));
+        System.out.println("\tRuntime: " + cm.getRuntime() + "ns");
+        System.out.println("\tAnswer: " + sumCoins(tally));
+        System.out.print("\tCoin tally: ");
         for (int i = 0; i < denominations.length; i++)
         {
             System.out.print(denominations[i] + ":" + tally[i]);
             System.out.print((i == denominations.length - 1) ? (" = " + sumValues(tally) + "\n") : " + ");
         }
+        System.out.println("--------------");
         
         return sumCoins(tally);
     }
@@ -477,21 +635,25 @@ public class ChangeMaker
 
             ChangeMaker chg = new ChangeMaker(denominations);
             
-            int value = 251;
-            
-            //for (int value = 1; value <= max; value++)
+            for (int problem : problems)
             {
-                int i = chg.makeChangeWithMemoization(value);
-
-                int[] j = chg.makeChangeDynamically(value);
+                System.out.println("**************\nSolving " + problem);
+                System.out.println("\tDynamic:");
+                chg.printInfo(chg.makeChangeDynamically(problem, 10000), chg);
                 
-                if(i != sum(j))
+                if (problem < 90)
                 {
-                    System.out.println("fail at " + value + ": " + i + " != " + sum(j));
+                    System.out.println("\tRecursive:");
+                    chg.printInfo(chg.makeChangeRecursively(problem, 100), chg);
+                }
+                
+                if (problem < 252)
+                {
+                    System.out.println("\tRecursive w/memo:");
+                    chg.printInfo(chg.makeChangeWithMemoization(problem, 1000), chg);
                 }
             }
-            //chg.printInfo(chg.makeChangeDynamically(8));
-            //chg.printInfo(chg.makeChangeDynamically(22));
+            
         }
         catch (InvalidInputFileException |
             FileNotFoundException |
