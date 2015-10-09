@@ -147,6 +147,7 @@ public class ChangeMaker
      * @return tally of which denominations were used (mirrors order of the
      * denominations array).
      * @throws InvalidProblemException throws when value is less than 1
+     * @throws changemaker.DenominationNotFoundException
      */
     public int[] makeChangeDynamically(int value)
         throws InvalidProblemException, DenominationNotFoundException
