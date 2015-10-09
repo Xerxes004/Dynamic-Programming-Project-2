@@ -110,7 +110,8 @@ public class ChangeMaker
             }
             else
             {
-                String err = "Not enough denomination info found in input file!";
+                String err = 
+                        "Not enough denomination info found in input file!";
                 throw new InvalidInputFileException(err);
             }
         }
@@ -234,9 +235,11 @@ public class ChangeMaker
 
                     // the solution to problem i is the the best-possible 
                     // sub-problem solution
-                    dynamicCoinCount[i] = dynamicCoinCount[minValue(possibleSolutions)] + 1;
+                    dynamicCoinCount[i] = 
+                            dynamicCoinCount[minValue(possibleSolutions)] + 1;
                     
-                    lastCoinTaken[i] = denominations[minIndex(possibleSolutions)];
+                    lastCoinTaken[i] = 
+                            denominations[minIndex(possibleSolutions)];
                 }
             }
             
@@ -701,7 +704,8 @@ public class ChangeMaker
                 {
                     System.out.println("Memoized");
                     chg.printInfo(
-                        chg.makeChangeWithMemoization(problem, timesToSolve), chg);
+                        chg.makeChangeWithMemoization(
+                                problem, timesToSolve), chg);
                 }
             }
                 
@@ -711,21 +715,28 @@ public class ChangeMaker
                 for (int problem = 1; problem <= max; problem++)
                 {
                     if (problem % 100 == 0 ) System.out.println(problem);
-                    int[] answer = chg.makeChangeDynamically(problem, timesToSolve);
-                    outputFile.println("d," + problem + "," + sum(answer) + "," + (chg.getRuntime()));
+                    int[] answer = 
+                            chg.makeChangeDynamically(problem, timesToSolve);
+                    outputFile.println(
+                            "d," + problem + "," + sum(answer) + "," 
+                                    + (chg.getRuntime()));
 
                     // Problems start to take massive amounts of time around 50
                     if (problem < 50)
                     {
-                        answer = chg.makeChangeRecursively(problem, timesToSolve);
-                        outputFile.println("r," + problem + "," + sum(answer) + "," + (chg.getRuntime()));
+                        answer = chg.makeChangeRecursively(
+                                problem, timesToSolve);
+                        outputFile.println("r," + problem + "," + sum(answer) 
+                                + "," + (chg.getRuntime()));
                     }
 
                     // for some reason memoization breaks at 252... no idea why.
                     if (problem < 252)
                     {
-                        answer = chg.makeChangeWithMemoization(problem, timesToSolve);
-                        outputFile.println("m," + problem + "," + sum(answer) + "," + (chg.getRuntime()));
+                        answer = chg.makeChangeWithMemoization(
+                                problem, timesToSolve);
+                        outputFile.println("m," + problem + "," + sum(answer) 
+                                + "," + (chg.getRuntime()));
                     }
                 }
             }
