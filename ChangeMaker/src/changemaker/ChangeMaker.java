@@ -9,7 +9,6 @@
  * @author : Wesley Kelly, James Von Eiff
  * @version 1.0
  */
-
 package changemaker;
 
 import java.io.File;
@@ -24,9 +23,8 @@ public class ChangeMaker
     private static int[] problems;
     private long runtime;
 
-    private int[] lastCoinTaken;
-    private int[] coinCount;
-
+    //private int[] lastCoinTaken;
+    //private int[] coinCount;
     /**
      * Constructor which takes an array of denominations.
      *
@@ -55,11 +53,12 @@ public class ChangeMaker
         {
             denominations = denominations_;
             Arrays.sort(denominations);
-            lastCoinTaken = new int[1];
-            // seed the last coin taken array
-            lastCoinTaken[0] = 1;
-
-            coinCount = new int[1];
+            System.out.print("Denoms: ");
+            int i = 0;
+            for (int coin : denominations)
+            {
+                System.out.print(coin + (++i == denominations.length ? "\n" : ", "));
+            }
         }
     }
 
@@ -149,95 +148,131 @@ public class ChangeMaker
      * denominations array).
      * @throws InvalidProblemException throws when value is less than 1
      */
-    private int[] makeChangeDynamically(int value)
-        throws InvalidProblemException
+    public int[] makeChangeDynamically(int value)
+        throws InvalidProblemException, DenominationNotFoundException
     {
         if (value < 1)
         {
             throw new InvalidProblemException("Invalid money value: " + value);
         }
-
-        // if we already have stored that value
-        if (value < lastCoinTaken.length)
-        {
-            long startTime = System.nanoTime();
-
-            // TODO assign the tally based on already-computed data
-            int tally[] = new int[0];
-
-            runtime = startTime - System.nanoTime();
-
-            return tally;
-        }
-        // if we haven't already found that value, find all of the new values
-        // we need in order to find it
         else
         {
-            // we are extending our coinCount array
-            int newCoinCount[] = new int[value + 1];
-            System.arraycopy(coinCount, 0, newCoinCount, 0, coinCount.length);
-            
-            coinCount = newCoinCount;
-            
-            // extend lastCoinTaken array
-            int newLastCoinTaken[] = new int[newCoinCount.length];
-            System.arraycopy(lastCoinTaken, 0, newLastCoinTaken, 0, lastCoinTaken.length);
-            
-            lastCoinTaken = newLastCoinTaken;
-            
-
-            int[] tally = new int[denominations.length];
+            int coinCount[] = new int[value + 1];
+            int lastCoinTaken[] = new int[coinCount.length];
 
             long startTime = System.nanoTime();
-            
+
             for (int i = 0; i <= value; i++)
             {
-                // if we are only working with our 1-value "penny" currency, we 
-                // need exactly as many coins as our current index
+                // If we are only working with our 1-value "penny" currency, we 
+                // need exactly as many coins as our current index.
                 if (i < denominations[1])
                 {
                     coinCount[i] = i;
-                    
+                    // if index is zero, the last coin is zero, otherwise it's 1
                     lastCoinTaken[i] = (i != 0 ? 1 : 0);
                 }
                 else
                 {
-                    // finds the index of the largest denomination under i.
-                    //
-                    // this index is used to select currencies from the 
-                    //  denomination array
+                    // Finds the index of the largest denomination under i.
+                    // This index is used to select currencies from the 
+                    // denomination array.
                     int maxDenomIndex = findMaxDenominationIndex(i);
 
-                    // one smaller because we skip the first currency
-                    int coinTally[] = new int[maxDenomIndex];
+                    int possibleSolutions[] = new int[maxDenomIndex + 1];
 
-                    // for each currency value, subtract that currency then
+                    // For each currency value, subtract that currency then
                     // store the result in an array. These will be used to 
                     // index back into the newCoinCount array so that the values
                     // there can be compared.
-                    for (int k = 1; k <= maxDenomIndex; k++)
+                    for (int k = 0; k <= maxDenomIndex; k++)
                     {
-                        // skips the 1-value currency
                         int j = i - denominations[k];
-                        coinTally[k - 1] = coinCount[j];
+                        possibleSolutions[k] = coinCount[j];
                     }
 
-                    coinCount[i] = coinCount[minValue(coinTally)] + 1;
+                    coinCount[i] = coinCount[minValue(possibleSolutions)] + 1;
+
+                    lastCoinTaken[i] = denominations[min(possibleSolutions)];
                 }
             }
-            
-            System.out.println("Coins: ");
-            for (int c : coinCount)
-            {
-                System.out.print(c + ", ");
-            }
-            System.out.println("");
+
             runtime = System.nanoTime() - startTime;
-            
-            return tally;
+
+            return makeTally(lastCoinTaken, value);
         }
     }
 
+    /**
+     * Finds the corresponding index in the denominations array where the given
+     * currency value appears.
+     *
+     * @param currencyValue
+     * @return
+     */
+    private int denominationIndex(int currencyValue)
+        throws DenominationNotFoundException
+    {
+        int index = 0;
+        for (int coin : denominations)
+        {
+            if (coin == currencyValue)
+            {
+                break;
+            }
+            else
+            {
+                index++;
+                
+                if (index == denominations.length)
+                {
+                    String err = "Denomination not found: " + currencyValue;
+                    throw new DenominationNotFoundException(err);
+                }
+            }
+        }
+        return index;
+    }
+
+    /**
+     * Makes a tally from a lastCoinTake array and a value.
+     *
+     * @param lastCoinTakenArray an array of the last coin taken for each
+     * problem at index i
+     * @param value the value for which we're finding a tally
+     * @return the tally of coins that build the optimal solution
+     */
+    private int[] makeTally(int[] lastCoinTakenArray, int value)
+        throws DenominationNotFoundException
+    {
+        // "tally" is the data structure used to keep track of the number of
+        // coins used in our solution. With it we can figure out how many coins
+        // there are total and what the total value of the tally is.
+        int[] tally = new int[denominations.length];
+
+        int i = value;
+        while (i > 0)
+        {
+            // We increment the index of the tally to the corresponding last
+            // coin taken. i.e. if currency value #2 is a 7, then we increment
+            // index 1 in the tally to indicate we found a coin of that type.
+            tally[denominationIndex(lastCoinTakenArray[i])]++;
+            // The next location to index in the lastCoinTaken array is the
+            // current index minus the last-coin's value.
+            i -= lastCoinTakenArray[i];
+        }
+
+        return tally;
+    }
+
+    /**
+     * Finds the index (based on an array of integer denominations) which
+     * indexes to a denomination that is less than the value.
+     *
+     * @param value value of currency for which we are finding the highest
+     * denomination index
+     * @return the index of the highest denomination less than the value
+     */
     private int findMaxDenominationIndex(int value)
     {
         for (int i = 0; i < denominations.length; i++)
@@ -284,7 +319,7 @@ public class ChangeMaker
 
         return least;
     }
-    
+
     private int minValue(int[] values)
     {
         return values[min(values)];
@@ -303,6 +338,12 @@ public class ChangeMaker
         return runtime;
     }
 
+    /**
+     * Sums the amount of coins in an integer array.
+     *
+     * @param tally the integer array to sum
+     * @return the sum of the integers in the array
+     */
     private int sumCoins(int[] tally)
     {
         int sum = 0;
@@ -315,7 +356,15 @@ public class ChangeMaker
         return sum;
     }
 
-    private int sumTally(int[] tally)
+    /**
+     * Sums the values of the coins in an array that has the same length as the
+     * denomination array.
+     *
+     * @param tally the tally which contains a number of coins per denomination
+     * as specified in the denominations array
+     * @return the sum of the currency values
+     */
+    private int sumValues(int[] tally)
     {
         int sum = 0;
 
@@ -330,13 +379,19 @@ public class ChangeMaker
         return sum;
     }
 
-    public void printInfo(int[] tally)
+    /**
+     * Prints information from
+     *
+     * @param tally
+     * @param cm
+     */
+    public void printInfo(int[] tally, ChangeMaker cm)
     {
-        System.out.println("Runtime: " + this.runtime + "ns");
+        System.out.println("Runtime: " + cm.getRuntime() + "ns");
         for (int i = 0; i < denominations.length; i++)
         {
             System.out.print(denominations[i] + ":" + tally[i]);
-            System.out.print((i == denominations.length - 1) ? (" = " + sumTally(tally) + "\n") : " + ");
+            System.out.print((i == denominations.length - 1) ? (" = " + sumValues(tally) + "\n") : " + ");
         }
     }
 
@@ -350,16 +405,17 @@ public class ChangeMaker
 
             ChangeMaker chg = new ChangeMaker(denominations);
 
-            //chg.printInfo(
-            chg.makeChangeDynamically(22);
-            //);
+            chg.printInfo(
+                chg.makeChangeDynamically(22), chg
+            );
             //chg.printInfo(chg.makeChangeDynamically(8));
             //chg.printInfo(chg.makeChangeDynamically(22));
         }
         catch (InvalidInputFileException |
             FileNotFoundException |
             ChangeMakerException |
-            InvalidProblemException ex)
+            InvalidProblemException |
+            DenominationNotFoundException ex)
         {
             System.out.println(ex.getMessage());
         }
