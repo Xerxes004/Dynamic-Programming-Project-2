@@ -145,17 +145,17 @@ public class ChangeMaker
     public int[] makeChangeDynamically(int value, int iterations)
         throws InvalidProblemException, DenominationNotFoundException
     {
-        int avgRuntime = 0;
+        long avgRuntime = 0;
         int answer[] = new int[0];
         runtime = 0;
         
         for (int i = 0; i < iterations; i++)
         {
             answer = makeChangeDynamically(value);
-            avgRuntime += runtime;
+            avgRuntime = (avgRuntime + runtime) / (i + 1);
         }
         
-        runtime = avgRuntime / iterations;
+        runtime = avgRuntime;
         
         return answer;
     }
@@ -324,17 +324,17 @@ public class ChangeMaker
     public int[] makeChangeRecursively(int value, int iterations)
         throws DenominationNotFoundException
     {
-        int avgRuntime = 0;
+        long avgRuntime = 0;
         int tally[] = new int[0];
         runtime = 0;
         
         for (int i = 0; i < iterations; i++)
         {
             tally = makeChangeRecursively(value);
-            avgRuntime += runtime;
+            avgRuntime = (avgRuntime + runtime) / (i + 1);
         }
         
-        runtime = avgRuntime / iterations;
+        runtime = avgRuntime;
         
         return tally;
     }
@@ -451,17 +451,17 @@ public class ChangeMaker
     public int[] makeChangeWithMemoization(int value, int iterations)
         throws DenominationNotFoundException
     {
-        int avgRuntime = 0;
+        long avgRuntime = 0;
         int tally[] = new int[0];
         runtime = 0;
         
         for (int i = 0; i < iterations; i++)
         {
             tally = makeChangeWithMemoization(value);
-            avgRuntime += runtime;
+            avgRuntime = (avgRuntime + runtime) / (i + 1);
         }
         
-        runtime = avgRuntime / iterations;
+        runtime = avgRuntime;
         
         return tally;
     }
@@ -639,8 +639,8 @@ public class ChangeMaker
             
             ChangeMaker chg = new ChangeMaker(denominations);
             
-            int max = 5000;
-            int timesToSolve = 100;
+            int max = 2000;
+            int timesToSolve = 1000;
 
             //for (int problem : problems)
             for (int problem = 1; problem <= max; problem++)
