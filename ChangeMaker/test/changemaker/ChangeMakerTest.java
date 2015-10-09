@@ -38,7 +38,6 @@ public class ChangeMakerTest {
                 assertArrayEquals(dynamicSolve, memoizedSolve);
                 assertArrayEquals(dynamicSolve, recursiveSolve);
                 assertArrayEquals(recursiveSolve, memoizedSolve);
-                
             }
             
         } catch(ChangeMakerException e) {
