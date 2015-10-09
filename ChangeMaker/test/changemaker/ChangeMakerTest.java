@@ -30,21 +30,23 @@ public class ChangeMakerTest {
             int[] dynamicSolve = null;
             int[] memoizedSolve = null;
             int[] recursiveSolve = null;
-            for(int i = 0; i < 100; i ++) {
+            for(int i = 1; i < 51; i ++) {
+                
                 dynamicSolve = testing.makeChangeDynamically(i);
                 memoizedSolve = testing.makeChangeWithMemoization(i);
                 recursiveSolve = testing.makeChangeRecursively(i);
                 assertArrayEquals(dynamicSolve, memoizedSolve);
                 assertArrayEquals(dynamicSolve, recursiveSolve);
                 assertArrayEquals(recursiveSolve, memoizedSolve);
+                
             }
             
         } catch(ChangeMakerException e) {
             System.out.println("Something went wrong");
         } catch (InvalidProblemException ex) {
-            
+            System.out.println("Something went wrong");
         } catch (DenominationNotFoundException ex) {
-            
+            System.out.println("Something went wrong");
         }
     }
 
