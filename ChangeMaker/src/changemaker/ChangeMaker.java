@@ -212,7 +212,7 @@ public class ChangeMaker
                 {
                     dynamicCoinCount[i] = i;
                     // if index is zero, the last coin is zero, otherwise it's 1
-                    lastCoinTaken[i] = (i != 0 ? 1 : 0);
+                    lastCoinTaken[i] = (i == 0 ? 0 : 1);
                 }
                 else
                 {
@@ -236,7 +236,7 @@ public class ChangeMaker
                     // the solution to problem i is the the best-possible 
                     // sub-problem solution
                     dynamicCoinCount[i] = 
-                            dynamicCoinCount[minValue(possibleSolutions)] + 1;
+                            minValue(possibleSolutions) + 1;
                     
                     lastCoinTaken[i] = 
                             denominations[minIndex(possibleSolutions)];
@@ -444,7 +444,7 @@ public class ChangeMaker
     {
         int least = 0;
         
-        for (int i = 1; i < values.length; i++)
+        for (int i = 0; i < values.length; i++)
         {
             if (values[least] > values[i])
             {
@@ -660,7 +660,7 @@ public class ChangeMaker
         {
             if (tally[i] != 0)
             {
-                System.out.print(denominations[i] + ":" + tally[i]);
+                System.out.print(denominations[i] + ":" + tally[i] + " ");
             }
         }
         System.out.println("");
@@ -681,15 +681,18 @@ public class ChangeMaker
             ChangeMaker chg = new ChangeMaker(denominations);
             
             int max = 2000;
-            int timesToSolve = 1000;
+            int timesToSolve = 1;
 
             for (int problem : problems)
+            //for (int problem = 1; problem <= max; problem++)
             {
+                //int problem = 252;
+            
                 System.out.println("\nPROBLEM " + problem);
                 System.out.println("--------------");
                 System.out.println("Dynamic");
-                chg.printInfo(
-                        chg.makeChangeDynamically(problem, timesToSolve), chg);
+                int dyn[] = chg.makeChangeDynamically(problem);
+                chg.printInfo(dyn, chg);
 
                 // Problems start to take massive amounts of time around 50
                 if (problem < 50)
@@ -699,13 +702,14 @@ public class ChangeMaker
                         chg.makeChangeRecursively(problem, timesToSolve), chg);
                 }
 
-                // for some reason memoization breaks at 252... no idea why.
-                if (problem < 252)
+                System.out.println("Memoized");
+                int mem[] = chg.makeChangeWithMemoization(problem);
+                chg.printInfo(mem, chg);
+                
+                if (sum(mem) != sum(dyn))
                 {
-                    System.out.println("Memoized");
-                    chg.printInfo(
-                        chg.makeChangeWithMemoization(
-                                problem, timesToSolve), chg);
+                    System.out.println(chg.sumValues(dyn) + " != " + chg.sumValues(mem));
+                    break;
                 }
             }
                 
@@ -722,22 +726,19 @@ public class ChangeMaker
                                     + (chg.getRuntime()));
 
                     // Problems start to take massive amounts of time around 50
-                    if (problem < 50)
+                    /*if (problem < 50)
                     {
                         answer = chg.makeChangeRecursively(
                                 problem, timesToSolve);
                         outputFile.println("r," + problem + "," + sum(answer) 
                                 + "," + (chg.getRuntime()));
-                    }
+                    }*/
 
                     // for some reason memoization breaks at 252... no idea why.
-                    if (problem < 252)
-                    {
-                        answer = chg.makeChangeWithMemoization(
+                    answer = chg.makeChangeWithMemoization(
                                 problem, timesToSolve);
                         outputFile.println("m," + problem + "," + sum(answer) 
                                 + "," + (chg.getRuntime()));
-                    }
                 }
             }
             
