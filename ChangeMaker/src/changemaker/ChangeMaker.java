@@ -1,3 +1,4 @@
+
 /**
  * Title : Project 2, CS3410 Description: A dynamic-programming and naive
  * solution to the "making change" problem.
@@ -8,7 +9,6 @@
  * @author : Wesley Kelly, James Von Eiff
  * @version 1.0
  */
-
 package changemaker;
 
 import java.io.File;
@@ -19,11 +19,11 @@ import java.util.Scanner;
 
 public class ChangeMaker
 {
-    
+
     private static int[] denominations;
     private static int[] problems;
     private long runtime;
-    
+
     private int[] lastCoin;
     private int[] coinCount;
 
@@ -39,7 +39,7 @@ public class ChangeMaker
         throws ChangeMakerException
     {
         System.nanoTime();
-        
+
         if (denominations_ == null)
         {
             String err;
@@ -58,14 +58,14 @@ public class ChangeMaker
             // denominations must be in sorted order for selection logic to
             // work properly
             Arrays.sort(denominations);
-            
+
             System.out.print("Denominations: ");
             int i = 0;
             for (int coin : denominations)
             {
                 System.out.print(
                     coin + (++i == denominations.length ? "\n" : ", ")
-                );                
+                );
             }
         }
     }
@@ -110,8 +110,8 @@ public class ChangeMaker
             }
             else
             {
-                String err = 
-                        "Not enough denomination info found in input file!";
+                String err
+                    = "Not enough denomination info found in input file!";
                 throw new InvalidInputFileException(err);
             }
         }
@@ -146,14 +146,14 @@ public class ChangeMaker
                 throw new InvalidInputFileException(err);
             }
         }
-        
+
         inputFile.close();
     }
-    
+
     /**
      * Overloaded function allows the user to iterate the function a large
      * amount of times so that non-noisy data can be collected.
-     * 
+     *
      * @param value value for which to make change
      * @param iterations amount of times to solve the problem
      * @return the tally of coins
@@ -166,15 +166,15 @@ public class ChangeMaker
         long avgRuntime = 0;
         int answer[] = new int[0];
         runtime = 0;
-        
+
         for (int i = 0; i < iterations; i++)
         {
             answer = makeChangeDynamically(value);
             avgRuntime = (avgRuntime + runtime) / (i + 1);
         }
-        
+
         runtime = avgRuntime;
-        
+
         return answer;
     }
 
@@ -203,7 +203,7 @@ public class ChangeMaker
 
             // start timer
             long startTime = System.nanoTime();
-            
+
             for (int i = 0; i <= value; i++)
             {
                 // If we are only working with our 1-value "penny" currency, we 
@@ -220,7 +220,7 @@ public class ChangeMaker
                     // This index is used to select currencies from the 
                     // denomination array.
                     int maxDenomIndex = findMaxDenominationIndex(i);
-                    
+
                     int possibleSolutions[] = new int[maxDenomIndex + 1];
 
                     // For each currency value, subtract that currency then
@@ -235,16 +235,16 @@ public class ChangeMaker
 
                     // the solution to problem i is the the best-possible 
                     // sub-problem solution
-                    dynamicCoinCount[i] = 
-                            minValue(possibleSolutions) + 1;
-                    
-                    lastCoinTaken[i] = 
-                            denominations[minIndex(possibleSolutions)];
+                    dynamicCoinCount[i]
+                        = minValue(possibleSolutions) + 1;
+
+                    lastCoinTaken[i]
+                        = denominations[minIndex(possibleSolutions)];
                 }
             }
-            
+
             runtime = System.nanoTime() - startTime;
-            
+
             return makeTally(lastCoinTaken, value);
         }
     }
@@ -270,7 +270,7 @@ public class ChangeMaker
             else
             {
                 index++;
-                
+
                 if (index == denominations.length)
                 {
                     String err = "Denomination of value " + currencyValue;
@@ -297,7 +297,7 @@ public class ChangeMaker
         // coins used in our solution. With it we can figure out how many coins
         // there are total and what the total value of the tally is.
         int[] tally = new int[denominations.length];
-        
+
         int i = value;
         while (i > 0)
         {
@@ -309,7 +309,7 @@ public class ChangeMaker
             // current index minus the last-coin's value.
             i -= lastCoinTakenArray[i];
         }
-        
+
         return tally;
     }
 
@@ -349,15 +349,15 @@ public class ChangeMaker
         long avgRuntime = 0;
         int tally[] = new int[0];
         runtime = 0;
-        
+
         for (int i = 0; i < iterations; i++)
         {
             tally = makeChangeRecursively(value);
             avgRuntime = (avgRuntime + runtime) / (i + 1);
         }
-        
+
         runtime = avgRuntime;
-        
+
         return tally;
     }
 
@@ -375,18 +375,19 @@ public class ChangeMaker
     {
         coinCount = new int[value + 1];
         lastCoin = new int[value + 1];
-        
+
         long startTime = System.nanoTime();
-        
+
         recurse(value);
-        
+
         runtime = System.nanoTime() - startTime;
-        
+
         return makeTally(lastCoin, value);
     }
-    
+
     /**
      * Recursive function which solves the making change problem.
+     *
      * @param value value for which we are making change
      * @return the minimum coin amount found for the solution of value
      */
@@ -426,9 +427,9 @@ public class ChangeMaker
 
             // the sub-problem with the least coins
             int min = minValue(possibleSolutions) + 1;
-            
+
             lastCoin[value] = denominations[minIndex(possibleSolutions)];
-            
+
             return min;
         }
     }
@@ -443,7 +444,7 @@ public class ChangeMaker
     private int minIndex(int[] values)
     {
         int least = 0;
-        
+
         for (int i = 0; i < values.length; i++)
         {
             if (values[least] > values[i])
@@ -451,7 +452,7 @@ public class ChangeMaker
                 least = i;
             }
         }
-        
+
         return least;
     }
 
@@ -482,15 +483,15 @@ public class ChangeMaker
         long avgRuntime = 0;
         int tally[] = new int[0];
         runtime = 0;
-        
+
         for (int i = 0; i < iterations; i++)
         {
             tally = makeChangeWithMemoization(value);
             avgRuntime = (avgRuntime + runtime) / (i + 1);
         }
-        
+
         runtime = avgRuntime;
-        
+
         return tally;
     }
 
@@ -508,19 +509,20 @@ public class ChangeMaker
     {
         coinCount = new int[value + 1];
         lastCoin = new int[value + 1];
-        
+
         long startTime = System.nanoTime();
-        
+
         makeChangeWithMemoization(value, coinCount);
-        
+
         runtime = System.nanoTime() - startTime;
-        
+
         return makeTally(lastCoin, value);
     }
-    
+
     /**
-     * Recursive function which is used to solve the making change problem, 
+     * Recursive function which is used to solve the making change problem,
      * except this recursive algorithm memoizes optimal solutions.
+     *
      * @param value the value for which we are making change
      * @param coinCount the array which holds the optimal solutions
      * @return the optimal solution for value
@@ -568,17 +570,18 @@ public class ChangeMaker
 
             // the sub-problem with the least coins
             int min = minValue(possibleSolutions) + 1;
-            
+
             coinCount[value] = min;
-            
+
             lastCoin[value] = denominations[minIndex(possibleSolutions)];
-            
+
             return min;
         }
     }
-    
+
     /**
      * Returns the runtime of the last making change algorithm.
+     *
      * @return the runtime of the last making change algorithm
      */
     public long getRuntime()
@@ -595,12 +598,12 @@ public class ChangeMaker
     private int sumCoins(int[] tally)
     {
         int sum = 0;
-        
+
         for (int i : tally)
         {
             sum += i;
         }
-        
+
         return sum;
     }
 
@@ -613,12 +616,12 @@ public class ChangeMaker
     private static int sum(int[] tally)
     {
         int sum = 0;
-        
+
         for (int i : tally)
         {
             sum += i;
         }
-        
+
         return sum;
     }
 
@@ -633,7 +636,7 @@ public class ChangeMaker
     private int sumValues(int[] tally)
     {
         int sum = 0;
-        
+
         for (int i = 0; i < tally.length; i++)
         {
             for (int j = 0; j < tally[i]; j++)
@@ -641,21 +644,22 @@ public class ChangeMaker
                 sum += denominations[i];
             }
         }
-        
+
         return sum;
     }
 
     /**
-     * Prints relevant information to the screen from the last run. This 
-     * function is meant to have a call to an algorithm as the tally argument
-     * so that it gets printed directly after running.
+     * Prints relevant information to the screen from the last run. This
+     * function is meant to have a call to an algorithm as the tally argument so
+     * that it gets printed directly after running.
      *
      * @param tally a tally of an optimal solution
      * @param cm the ChangeMaker object we are interested in
      */
     public int printInfo(int[] tally, ChangeMaker cm)
     {
-        System.out.print(sumCoins(tally) + " = ");
+        System.out.println("  Optimal number of coins: " + sumCoins(tally));
+        System.out.print("  " + sumValues(tally) + " = ");
         for (int i = 0; i < denominations.length; i++)
         {
             if (tally[i] != 0)
@@ -664,10 +668,10 @@ public class ChangeMaker
             }
         }
         System.out.println("");
-        
+
         return sumCoins(tally);
     }
-    
+
     public static void main(String[] args)
     {
         try
@@ -675,75 +679,76 @@ public class ChangeMaker
             File inputFile = new File("make_change_input.txt");
             PrintWriter outputFile = new PrintWriter(new File("output.csv"));
             outputFile.println("type,problem,answer,time");
-            
+
             parseInputFile(inputFile);
-            
+
             ChangeMaker chg = new ChangeMaker(denominations);
+
+            int max = 5000;
+            int timesToSolve = 100;
+
+            //for (int problem : problems)
+            /*
+             for (int problem = 1; problem <= max; problem++)
+             {
+             //int problem = 252;
             
-            int max = 2000;
-            int timesToSolve = 1;
+             System.out.println("\nPROBLEM " + problem);
+             System.out.println("--------------");
+             System.out.println("Dynamic");
+             int dyn[] = chg.makeChangeDynamically(problem);
+             chg.printInfo(dyn, chg);
 
-            for (int problem : problems)
-            //for (int problem = 1; problem <= max; problem++)
-            {
-                //int problem = 252;
-            
-                System.out.println("\nPROBLEM " + problem);
-                System.out.println("--------------");
-                System.out.println("Dynamic");
-                int dyn[] = chg.makeChangeDynamically(problem);
-                chg.printInfo(dyn, chg);
+             // Problems start to take massive amounts of time around 50
+             if (problem < 50)
+             {
+             System.out.println("Recursive");
+             chg.printInfo(
+             chg.makeChangeRecursively(problem, timesToSolve), chg);
+             }
 
-                // Problems start to take massive amounts of time around 50
-                if (problem < 50)
-                {
-                    System.out.println("Recursive");
-                    chg.printInfo(
-                        chg.makeChangeRecursively(problem, timesToSolve), chg);
-                }
-
-                System.out.println("Memoized");
-                int mem[] = chg.makeChangeWithMemoization(problem);
-                chg.printInfo(mem, chg);
+             System.out.println("Memoized");
+             int mem[] = chg.makeChangeWithMemoization(problem);
+             chg.printInfo(mem, chg);
                 
-                if (sum(mem) != sum(dyn))
-                {
-                    System.out.println(chg.sumValues(dyn) + " != " + chg.sumValues(mem));
-                    break;
-                }
-            }
-                
-            boolean generateOutput = false;
+             assert (sum(mem) == sum(dyn));
+             assert (chg.sumCoins(mem) == chg.sumCoins(dyn));
+             assert (chg.sumValues(mem) == chg.sumValues(dyn));
+             }*/
+            boolean generateOutput = true;
+
             if (generateOutput)
             {
                 for (int problem = 1; problem <= max; problem++)
                 {
-                    if (problem % 100 == 0 ) System.out.println(problem);
-                    int[] answer = 
-                            chg.makeChangeDynamically(problem, timesToSolve);
+                    if (problem % 100 == 0)
+                    {
+                        System.out.println(problem);
+                    }
+                    int[] answer
+                        = chg.makeChangeDynamically(problem, timesToSolve);
                     outputFile.println(
-                            "d," + problem + "," + sum(answer) + "," 
-                                    + (chg.getRuntime()));
+                        "d," + problem + "," + sum(answer) + ","
+                        + chg.getRuntime());
 
                     // Problems start to take massive amounts of time around 50
-                    /*if (problem < 50)
+                    if (problem < 50)
                     {
                         answer = chg.makeChangeRecursively(
-                                problem, timesToSolve);
-                        outputFile.println("r," + problem + "," + sum(answer) 
-                                + "," + (chg.getRuntime()));
-                    }*/
+                            problem, timesToSolve);
+                        outputFile.println("r," + problem + "," + sum(answer)
+                            + "," + (chg.getRuntime()));
+                    }
 
-                    // for some reason memoization breaks at 252... no idea why.
                     answer = chg.makeChangeWithMemoization(
-                                problem, timesToSolve);
-                        outputFile.println("m," + problem + "," + sum(answer) 
-                                + "," + (chg.getRuntime()));
+                        problem, timesToSolve);
+                    outputFile.println("m," + problem + "," + sum(answer)
+                        + "," + (chg.getRuntime()));
                 }
             }
-            
+
             outputFile.close();
-            
+
         }
         catch (InvalidInputFileException |
             FileNotFoundException |
@@ -753,6 +758,6 @@ public class ChangeMaker
         {
             System.out.println(ex.getMessage());
         }
-        
+
     }
 }
