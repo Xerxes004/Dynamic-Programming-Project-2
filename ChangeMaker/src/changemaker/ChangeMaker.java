@@ -11,7 +11,6 @@
  */
 package changemaker;
 
-import com.sun.prism.impl.BufferUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -164,17 +163,17 @@ public class ChangeMaker
     public int[] makeChangeDynamically(int value, int iterations)
         throws InvalidProblemException, DenominationNotFoundException
     {
-        long lowestTime = BufferUtil.SIZEOF_DOUBLE;
+        long averageTime = 0;
         int answer[] = new int[0];
         runtime = 0;
 
         for (int i = 0; i < iterations; i++)
         {
             answer = makeChangeDynamically(value);
-            lowestTime = (runtime < lowestTime ? runtime : lowestTime);
+            averageTime = (runtime + averageTime) / (i + 1);
         }
 
-        runtime = lowestTime;
+        runtime = averageTime;
 
         return answer;
     }
@@ -347,17 +346,17 @@ public class ChangeMaker
     public int[] makeChangeRecursively(int value, int iterations)
         throws DenominationNotFoundException
     {
-        long lowestTime = BufferUtil.SIZEOF_DOUBLE;
+        long averageTime = 0;
         int tally[] = new int[0];
         runtime = 0;
 
         for (int i = 0; i < iterations; i++)
         {
             tally = makeChangeRecursively(value);
-            lowestTime = (runtime < lowestTime ? runtime : lowestTime);
+            averageTime = (runtime + averageTime) / (i + 1);
         }
 
-        runtime = lowestTime;
+        runtime = averageTime;
 
         return tally;
     }
@@ -481,17 +480,17 @@ public class ChangeMaker
     public int[] makeChangeWithMemoization(int value, int iterations)
         throws DenominationNotFoundException
     {
-        long lowestTime = BufferUtil.SIZEOF_DOUBLE;
+        long averageTime = 0;
         int tally[] = new int[0];
         runtime = 0;
 
         for (int i = 0; i < iterations; i++)
         {
             tally = makeChangeWithMemoization(value);
-            lowestTime = (runtime < lowestTime ? runtime : lowestTime);
+            averageTime = (runtime + averageTime) / (i + 1);
         }
 
-        runtime = lowestTime;
+        runtime = averageTime;
 
         return tally;
     }
@@ -685,38 +684,37 @@ public class ChangeMaker
 
             ChangeMaker chg = new ChangeMaker(denominations);
 
-            int max = 5000;
             int timesToSolve = 1000;
 
-            //for (int problem : problems)
-            /*
-             for (int problem = 1; problem <= max; problem++)
-             {
-             //int problem = 252;
+            for (int problem : problems)
+            {
+
+                System.out.println("\nPROBLEM " + problem);
+                System.out.println("--------------");
+                System.out.println("Dynamic");
+                int dyn[] = chg.makeChangeDynamically(problem);
+                chg.printInfo(dyn, chg);
+
+                // Problems start to take massive amounts of time around 50
+                if (problem < 100)
+                {
+                    System.out.println("Recursive");
+                    chg.printInfo(
+                        chg.makeChangeRecursively(problem), chg);
+                }
+
+                System.out.println("Memoized");
+                int mem[] = chg.makeChangeWithMemoization(problem);
+                chg.printInfo(mem, chg);
+
+                assert (sum(mem) == sum(dyn));
+                assert (chg.sumCoins(mem) == chg.sumCoins(dyn));
+                assert (chg.sumValues(mem) == chg.sumValues(dyn));
+            }
+
+            int max = 5000;
             
-             System.out.println("\nPROBLEM " + problem);
-             System.out.println("--------------");
-             System.out.println("Dynamic");
-             int dyn[] = chg.makeChangeDynamically(problem);
-             chg.printInfo(dyn, chg);
-
-             // Problems start to take massive amounts of time around 50
-             if (problem < 50)
-             {
-             System.out.println("Recursive");
-             chg.printInfo(
-             chg.makeChangeRecursively(problem, timesToSolve), chg);
-             }
-
-             System.out.println("Memoized");
-             int mem[] = chg.makeChangeWithMemoization(problem);
-             chg.printInfo(mem, chg);
-                
-             assert (sum(mem) == sum(dyn));
-             assert (chg.sumCoins(mem) == chg.sumCoins(dyn));
-             assert (chg.sumValues(mem) == chg.sumValues(dyn));
-             }*/
-            boolean generateOutput = true;
+            boolean generateOutput = false;
 
             if (generateOutput)
             {
