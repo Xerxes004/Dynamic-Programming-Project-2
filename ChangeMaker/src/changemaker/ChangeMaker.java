@@ -11,6 +11,7 @@
  */
 package changemaker;
 
+import com.sun.prism.impl.BufferUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -163,17 +164,17 @@ public class ChangeMaker
     public int[] makeChangeDynamically(int value, int iterations)
         throws InvalidProblemException, DenominationNotFoundException
     {
-        long avgRuntime = 0;
+        long lowestTime = BufferUtil.SIZEOF_DOUBLE;
         int answer[] = new int[0];
         runtime = 0;
 
         for (int i = 0; i < iterations; i++)
         {
             answer = makeChangeDynamically(value);
-            avgRuntime = (avgRuntime + runtime) / (i + 1);
+            lowestTime = (runtime < lowestTime ? runtime : lowestTime);
         }
 
-        runtime = avgRuntime;
+        runtime = lowestTime;
 
         return answer;
     }
@@ -346,17 +347,17 @@ public class ChangeMaker
     public int[] makeChangeRecursively(int value, int iterations)
         throws DenominationNotFoundException
     {
-        long avgRuntime = 0;
+        long lowestTime = BufferUtil.SIZEOF_DOUBLE;
         int tally[] = new int[0];
         runtime = 0;
 
         for (int i = 0; i < iterations; i++)
         {
             tally = makeChangeRecursively(value);
-            avgRuntime = (avgRuntime + runtime) / (i + 1);
+            lowestTime = (runtime < lowestTime ? runtime : lowestTime);
         }
 
-        runtime = avgRuntime;
+        runtime = lowestTime;
 
         return tally;
     }
@@ -480,17 +481,17 @@ public class ChangeMaker
     public int[] makeChangeWithMemoization(int value, int iterations)
         throws DenominationNotFoundException
     {
-        long avgRuntime = 0;
+        long lowestTime = BufferUtil.SIZEOF_DOUBLE;
         int tally[] = new int[0];
         runtime = 0;
 
         for (int i = 0; i < iterations; i++)
         {
             tally = makeChangeWithMemoization(value);
-            avgRuntime = (avgRuntime + runtime) / (i + 1);
+            lowestTime = (runtime < lowestTime ? runtime : lowestTime);
         }
 
-        runtime = avgRuntime;
+        runtime = lowestTime;
 
         return tally;
     }
@@ -685,7 +686,7 @@ public class ChangeMaker
             ChangeMaker chg = new ChangeMaker(denominations);
 
             int max = 5000;
-            int timesToSolve = 100;
+            int timesToSolve = 1000;
 
             //for (int problem : problems)
             /*
